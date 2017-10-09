@@ -27,8 +27,11 @@ var exec = require('cordova/exec');
 var hasCheckedInstall,
     isAppInstalled;
 
-function shareDataUrl(dataUrl, caption, callback) {
-  var imageData = dataUrl.replace(/data:image\/(png|jpeg);base64,/, "");
+function shareDataUrl(dataUrl, isVideo, caption, callback) {
+
+  var replaceExpression= isVideo?/data:video\/(mp4|mov);base64,/:/data:image\/(png|jpeg);base64,/;
+
+  var imageData = dataUrl.replace(replaceExpression, "");
 
     if (cordova && cordova.plugins && cordova.plugins.clipboard && caption !== '') {
       console.log("copying caption: ", caption);
@@ -41,7 +44,7 @@ function shareDataUrl(dataUrl, caption, callback) {
         },
         function (err) {
             callback && callback(err);
-        }, "Instagram", "share", [imageData, caption]
+        }, "Instagram", "share", [imageData, isVideo, caption]
     );
 }
 
@@ -89,15 +92,27 @@ var Plugin = {
         magic = "data:image";
 
     if (canvas) {
-      shareDataUrl(canvas.toDataURL(), caption, callback);
+      shareDataUrl(canvas.toDataURL(), false, caption, callback);
     }
     else if (data.slice(0, magic.length) == magic) {
-      shareDataUrl(data, caption, callback);
+      shareDataUrl(data, false, caption, callback);
     }
     else
     {
       console.log("oops, Instagram image data string has to start with 'data:image'.")
     }
+  },
+  shareVideo: function () {
+    var data = arguments[0];
+    var caption = arguments.length===2?'':arguments[1];
+    var callback = arguments.length===2?arguments[1]:arguments[2];
+
+    // sanity check
+    if (hasCheckedInstall && !isAppInstalled) {
+        console.log("oops, Instagram is not installed ... ");
+        return callback && callback("oops, Instagram is not installed ... ");
+    }
+    shareDataUrl(data, true, caption, callback);
   },
   shareAsset: function (successCallback, errorCallback, assetLocalIdentifier) {
       // sanity check

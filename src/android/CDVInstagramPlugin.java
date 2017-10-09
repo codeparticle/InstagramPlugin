@@ -89,7 +89,7 @@ public class CDVInstagramPlugin extends CordovaPlugin {
 		}
 	}
 
-    private void share(String imageString, String captionString) {
+    private void share(String imageString, Boolean isVideo, String captionString) {
         if (imageString != null && imageString.length() > 0) { 
         	byte[] imageData = Base64.decode(imageString, 0);
         	
@@ -103,7 +103,8 @@ public class CDVInstagramPlugin extends CordovaPlugin {
             }
 
             try {
-                file = File.createTempFile("instagram", ".png", parentDir);
+                String tempFileExtention = isVideo?".mp4":".png";
+                file = File.createTempFile("instagram", tempFileExtention, parentDir);
                 os = new FileOutputStream(file, true);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -119,7 +120,7 @@ public class CDVInstagramPlugin extends CordovaPlugin {
 			}
         	
         	Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        	shareIntent.setType("image/*");
+        	shareIntent.setType(isVideo?"video/*":"image/*");
         	shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
         	shareIntent.putExtra(Intent.EXTRA_TEXT, captionString);
         	shareIntent.setPackage("com.instagram.android");

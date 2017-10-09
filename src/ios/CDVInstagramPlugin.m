@@ -52,7 +52,8 @@ static NSString *InstagramId = @"com.burbn.instagram";
     self.callbackId = command.callbackId;
     self.toInstagram = FALSE;
     NSString    *objectAtIndex0 = [command argumentAtIndex:0];
-    NSString    *caption = [command argumentAtIndex:1];
+    Boolean     isVideo = [command argumentAtIndex:1];
+    NSString    *caption = [command argumentAtIndex:2];
     
     CDVPluginResult *result;
     
